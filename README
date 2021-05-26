@@ -1,0 +1,27 @@
+Note: THIS CAN TAKE A LONG TIME TO RUN.  Sorry, it requires loading a large 
+dataset into memory and parsing it twice (there's probably ways to speed this 
+up but those will take too long to implement)
+
+# Instructions to use:
+
+Edit the .py file and replace the conflict ID in the parse_conflict_num() 
+function with whatever conflict ID you want (by default it's set to 12, I'll 
+find a way to make this interactive later).  Conflict ID found in data/mid/MIDB
+
+Then four graphs will be printed:
+1. the trade data for all countries trading with the instigators of side A
+2. all the combatants for side A
+3/4. the same, except for side B
+
+I'll add more detailed parsing in the future, including:
+- ways to combine both graphs and show it as one large model
+- making the graph look *much* nicer 
+- finding ways to make the combatant graph have the exact same structure as the
+  trade graph, just with some nodes removed
+- making this easier to use
+- whatever else is marked TODO
+
+# Legal
+Licensed under the GNU General Public License, either Version 2 of this license 
+or, at your discretion, any later version as published by the Free Software 
+Foundation.
