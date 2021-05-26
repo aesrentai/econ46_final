@@ -39,9 +39,9 @@ returns: a dict of tuples, (country, dict of trade-partner and trade amount)
 parses trade values for a list of countries at a given year and returns
 the amount each country traded with each other
 '''
-def parse_trade_data(country_list, year):
+def parse_trade_data(trade_data, country_list, year):
     # use trade values from year before conflict
-    conflict_year = str(int(year) - 1)
+    year = str(int(year) - 1)
 
     # initialize placeholder values
     trade_values = dict()
