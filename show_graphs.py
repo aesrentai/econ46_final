@@ -1,35 +1,36 @@
 # SPDX-License-Identifier: (GPL-2.0-or-later) 
 
 import csv
-
-trade_data = csv.DictReader(open('data/cow/Dyadic_COW_4.0_shortened.csv', 'r'))
-dispute_data = csv.DictReader(open('data/mid/MIDB_5.0.csv', 'r'))
-
+import networkx as nx
+import matplotlib.pyplot as plt
 '''
-params: the conflict number according to MIDB
-returns: instigatorA, instigatorB, listA, listB, start_year
+params: the conflict number according to MIDB, the dispute database
+returns: instigatorsA, instigatorsB, listA, listB, start_year
 '''
-def parse_conflict_num(conflict_id):
-    conflict_id = str(conflict_id)
+def parse_conflict_num(dispute_data, conflict_id):
+    instigatorsA = []
+    instigatorsB = []
     listA = []
     listB = []
-    #TODO: find a way of doing this more efficient than parsing the entire csv
     for entry in dispute_data:
-        if entry['dispnum'] == conflict_id:
+        dispute_num = int(entry['dispnum'])
+        if dispute_num > conflict_id:
+            #we've already parsed the conflict we want
+            break
+        elif dispute_num == conflict_id:
             start_year = entry['styear']
             if entry['orig'] == '1':
                 #one of the originators:
                 if entry['sidea'] == '1':
-                    instigatorA = entry['stabb']
+                    instigatorsA.append(entry['stabb'])
                 else:
-                    instigatorB = entry['stabb']
+                    instigatorsB.append(entry['stabb'])
+            if entry['sidea'] == '1':
+                listA.append(entry['stabb'])
             else:
-                #joined one side of the conflict
-                if entry['sidea'] == '1':
-                    listA.append(entry['stabb'])
-                else:
-                    listA.append(entry['stabb'])
-    return instigatorA, instigatorB, listA, listB, start_year
+                listB.append(entry['stabb'])
+
+    return instigatorsA, instigatorsB, listA, listB, start_year
 
 '''
 params: a list of countries, and the year of conflict
