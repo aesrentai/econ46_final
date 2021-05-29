@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: (GPL-2.0-or-later) 
 
 import csv
-import networkx as nx
+import itertools 
 import matplotlib.pyplot as plt
+import networkx as nx
+import operator
 
 '''
 params: the conflict number according to MIDB, the dispute database
