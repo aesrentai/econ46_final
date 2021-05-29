@@ -3,6 +3,7 @@
 import csv
 import networkx as nx
 import matplotlib.pyplot as plt
+
 '''
 params: the conflict number according to MIDB, the dispute database
 returns: instigatorsA, instigatorsB, listA, listB, start_year
@@ -143,12 +144,14 @@ if __name__ == '__main__':
             instigatorsB, 
             start_year
     )
+
     #TODO: add utility to intersect two lists so both sides can be shown in the same graph
-    #TODO: is there a better way of doing this?
     print("Parsing trade data for side A")
     trade_valuesA = parse_trade_data(trade_data, instigatorsA_trade_partners, start_year) if len(instigatorsA_trade_partners) > 1 else None
+
     print("Parsing trade data for side B")
     trade_valuesB = parse_trade_data(trade_data, instigatorsB_trade_partners, start_year) if len(instigatorsB_trade_partners) > 1 else None
+
     draw_trade_war_graphs(instigatorsA, sideA, trade_valuesA, 'A') 
     draw_trade_war_graphs(instigatorsB, sideB, trade_valuesB, 'B') 
 
