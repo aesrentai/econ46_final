@@ -15,6 +15,7 @@ def parse_conflict_num(dispute_data, conflict_id):
     instigatorsB = []
     listA = []
     listB = []
+    start_year = "-1"
     for entry in dispute_data:
         dispute_num = int(entry['dispnum'])
         if dispute_num > conflict_id:
@@ -133,27 +134,41 @@ if __name__ == '__main__':
     trade_data = csv.DictReader(open('data/cow/Dyadic_COW_4.0_shortened.csv', 'r'))
     trade_data = list(trade_data)
     dispute_data = csv.DictReader(open('data/mid/MIDB_5.0.csv', 'r'))
+    dispute_data = list(dispute_data)
 
-    #TODO: make this interactive
-    print("Parsing conflict number.")
-    instigatorsA, instigatorsB, sideA, sideB, start_year = parse_conflict_num(dispute_data, 12)
+    while True:
+        conflict_num = input("Enter a conflict number.  Type \"exit\" without the quotes to leave\n")
+        if conflict_num == "exit":
+            print("Goodbye")
+            exit(0)
+        try:
+            conflict_num = int(conflict_num)
+        except ValueError:
+            print("Invalid conflict number")
+            continue
 
-    print("Retrieving trade partners")
-    #used to draw the trade relationships between instigators
-    instigatorsA_trade_partners, instigatorsB_trade_partners = get_conflict_trade_partners(
-            trade_data,
-            instigatorsA, 
-            instigatorsB, 
-            start_year
-    )
+        print("Parsing conflict number.")
+        instigatorsA, instigatorsB, sideA, sideB, start_year = parse_conflict_num(dispute_data, conflict_num)
+        
+        if int(start_year) == -1:
+            print("Conflict number {0} does not exist".format(str(conflict_num)))
+            continue
 
-    #TODO: add utility to intersect two lists so both sides can be shown in the same graph
-    print("Parsing trade data for side A")
-    trade_valuesA = parse_trade_data(trade_data, instigatorsA_trade_partners, start_year) if len(instigatorsA_trade_partners) > 1 else None
+        print("Retrieving trade partners")
+        instigatorsA_trade_partners, instigatorsB_trade_partners = get_conflict_trade_partners(
+                trade_data,
+                instigatorsA, 
+                instigatorsB, 
+                start_year
+        )
 
-    print("Parsing trade data for side B")
-    trade_valuesB = parse_trade_data(trade_data, instigatorsB_trade_partners, start_year) if len(instigatorsB_trade_partners) > 1 else None
+        #TODO: add utility to intersect two lists so both sides can be shown in the same graph
+        print("Parsing trade data for side A")
+        trade_valuesA = parse_trade_data(trade_data, instigatorsA_trade_partners, start_year) if len(instigatorsA_trade_partners) > 1 else None
 
-    draw_trade_war_graphs(instigatorsA, sideA, trade_valuesA, 'A') 
-    draw_trade_war_graphs(instigatorsB, sideB, trade_valuesB, 'B') 
+        print("Parsing trade data for side B")
+        trade_valuesB = parse_trade_data(trade_data, instigatorsB_trade_partners, start_year) if len(instigatorsB_trade_partners) > 1 else None
+
+        if trade_valuesA != None: draw_trade_war_graphs(instigatorsA, sideA, trade_valuesA, 'A') 
+        if trade_valuesB != None: draw_trade_war_graphs(instigatorsB, sideB, trade_valuesB, 'B') 
 
