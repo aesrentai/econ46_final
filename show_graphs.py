@@ -76,8 +76,8 @@ def get_conflict_trade_partners(trade_data, sideA, sideB, year, ignore_unknown =
     year = str(int(year) - 1)
 
     #include the original countries in the trade partnerships
-    trade_partnersA = sideA 
-    trade_partnersB = sideB 
+    trade_partnersA = sideA.copy()
+    trade_partnersB = sideB.copy()
 
     #parse the entire csv
     for entry in trade_data:
