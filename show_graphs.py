@@ -205,7 +205,7 @@ def show_summary(percentages, side, instigators):
         slope, intercept, exponent, log_intercept = regression_models(percentages, side, instigators) 
         print("Linear Regression: y = {0}x + {1}".format(slope[0][0], intercept[0]))
         if exponent != -1:
-            print("Logistic Regression: y = 1/(1+e^-({0} + {1}x))".format(log_intercept, exponent))
+            print("Logistic Regression: y = 1/(1+e^-({0} + {1}x))".format(log_intercept[0], exponent[0][0]))
         else:
             print("Logistic Regression model not available")
     else:
