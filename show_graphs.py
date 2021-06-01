@@ -212,6 +212,7 @@ def show_summary(percentages, side, instigators):
         print("No Regression Model Available")
 
 if __name__ == '__main__':
+    print("Importing Data.  This may take a while.")
     trade_data = csv.DictReader(open('data/cow/Dyadic_COW_4.0_shortened.csv', 'r'))
     trade_data = list(trade_data)
     dispute_data = csv.DictReader(open('data/mid/MIDB_5.0.csv', 'r'))
