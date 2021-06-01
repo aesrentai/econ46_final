@@ -88,6 +88,15 @@ def get_conflict_trade_partners(trade_data, sideA, sideB, year, ignore_unknown =
         if ignore_unknown and (entry['flow1'] == '-9' or entry['flow2'] == '-9'):
             continue
 
+        '''
+        ignore all countries with no trade
+        '''
+        if entry['flow1'] == '0' or entry['flow2'] == '0':
+            continue
+
+        '''
+        wrong year
+        '''
         if year != entry['year']:
             continue
 
