@@ -4,8 +4,10 @@ import csv
 import itertools 
 import matplotlib.pyplot as plt
 import networkx as nx
+import numpy as np
 import operator
 
+from sklearn import linear_model
 '''
 params: the conflict number according to MIDB, the dispute database
 returns: instigatorsA, instigatorsB, listA, listB, start_year
@@ -138,6 +140,76 @@ def draw_trade_war_graphs(instigators, combatants, countries, side):
     ax.set_title('Combatant Graph for Side ' + side)
     nx.draw_networkx(G, with_labels=True, ax=ax)
     plt.show()
+
+'''
+params: a dict, mapping each country to a dict of its trade partners and amounts
+returns: a dict, with the same format as the input, except with percentages
+'''
+def calculate_trade_percentages(trade_values):
+    trade_percentages = dict()
+    for country, partners in trade_values.items():
+        trade_volume = sum(map(abs, partners.values()))
+        trade_percentages[country] = {k: v / trade_volume for k, v in partners.items()} 
+    return trade_percentages
+
+'''
+params: the combatants on one side, the instigators of that side, and the parsed trade percentages 
+returns: a list of (trade % with instigator[index], 0 if did not join, 1 if join)
+
+used to check the likelihood trade partners joined one side of a conflict
+'''
+def create_trade_join_statistics(side, instigators, trade_percentages, index=0): 
+    trade_join_pairs = []
+    for country, amounts in trade_percentages.items():
+        if country in instigators:
+            #don't check if an instigator joined themself
+            continue
+
+        joined = 1 if country in side else 0
+        try:
+            entry = list((trade_percentages[country][instigators[index]], joined))
+        except KeyError:
+            #no trade with instigator 
+            entry = list((0, joined)) 
+        trade_join_pairs.append(entry)
+    return trade_join_pairs
+
+'''
+params: the trade percenages, the combatants on one side, the instigators on one side
+returns: the slope and intercept of the regression model
+
+performs a linear regression on the trade percentages and likelihood of joining one side
+'''
+def regression_models(percentages, side, instigators):
+    linear_data = np.array(create_trade_join_statistics(side, instigators, percentages)) 
+    X = linear_data[:, 0].reshape(-1, 1)
+    y = linear_data[:, 1].reshape(-1, 1)
+    lin_reg = linear_model.LinearRegression().fit(X, y)
+    try:
+        log_reg = linear_model.LogisticRegression().fit(X, y.ravel())
+    except ValueError:
+        #Logistic Regression fails if all y values are 0
+        return lin_reg.coef_, lin_reg.intercept_, -1, -1
+    return lin_reg.coef_, lin_reg.intercept_, log_reg.coef_, lin_reg.intercept_
+
+'''
+params: the trade percenages, the combatants on one side, the instigators on one side
+returns: none
+
+shows a summary of the data for one side
+'''
+def show_summary(percentages, side, instigators):
+    print("Instigators: " + str(instigators))
+    print("Combatants: " + str(side))
+    if percentages is not None:
+        slope, intercept, exponent, log_intercept = regression_models(percentages, side, instigators) 
+        print("Linear Regression: y = {0}x + {1}".format(slope[0][0], intercept[0]))
+        if exponent != -1:
+            print("Logistic Regression: y = 1/(1+e^-({0} + {1}x))".format(log_intercept, exponent))
+        else:
+            print("Logistic Regression model not available")
+    else:
+        print("No Regression Model Available")
 
 if __name__ == '__main__':
     trade_data = csv.DictReader(open('data/cow/Dyadic_COW_4.0_shortened.csv', 'r'))
