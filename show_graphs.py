@@ -154,6 +154,7 @@ def draw_trade_war_graphs(instigators, combatants, countries, side):
         if not combatant in countries:
             #no trade with any instigator but still fought
             add_country_to_graph(G, combatant, included_countries, dict())
+            color_map.append('red')
 
     pos = nx.circular_layout(G)
     
