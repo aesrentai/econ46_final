@@ -137,7 +137,7 @@ returns: none
 
 draws a graph of the given network weighted by magnitude of trade
 '''
-def draw_trade_war_graphs(instigators, combatants, countries, side):
+def create_trade_war_graphs(instigators, combatants, countries, side):
     #TODO: weight the network, use sigmoid smoothing 
 
     G = nx.Graph()
@@ -155,15 +155,33 @@ def draw_trade_war_graphs(instigators, combatants, countries, side):
             #no trade with any instigator but still fought
             add_country_to_graph(G, combatant, included_countries, dict())
             color_map.append('red')
+    return G, color_map
 
+'''
+params:
+    A graph to render
+    whether or this graph is a trade or combat graph
+    a map of colors
+    the side of the conflict
+'''
+def render_graph(G, is_trade, color_map, side):
     pos = nx.circular_layout(G)
-    
     ax = plt.gca()
-    ax.set_title('Trade Graph for Side ' + side)
+    if is_trade:
+        ax.set_title('Trade Graph for Side ' + side)
+    else:
+        ax.set_title('Combat Graph for Side ' + side)
     nx.draw_networkx(G, pos, node_color=color_map, with_labels=True, ax=ax)
     plt.show()
 
-    #remove all the noncombatants
+'''
+params: 
+    the graph
+    list of instigators
+    list of combatants
+returns: the original graph, with nodes removed
+'''
+def remove_noncombatants(G, combatants, countries):
     edges_to_remove = []
     for edge in G.edges():
         if not edge[0] in combatants or not edge[1] in combatants:
@@ -171,16 +189,20 @@ def draw_trade_war_graphs(instigators, combatants, countries, side):
     for edge in edges_to_remove:
         G.remove_edge(edge[0], edge[1])
     countries_to_remove = []
-    for country, _ in countries.items():
-        if not country in combatants:
-            countries_to_remove.append(country)
-    for country in countries_to_remove:
-        G.remove_node(country)
 
-    ax2 = plt.gca()
-    ax2.set_title('Combatant Graph for Side ' + side)
-    nx.draw_networkx(G, pos, node_color = 'r', ax=ax2, nodelist=combatants)
-    plt.show()
+    try:
+        for country, _ in countries.items():
+            if not country in combatants:
+                countries_to_remove.append(country)
+        for country in countries_to_remove:
+            G.remove_node(country)
+    except AttributeError:
+        pass
+
+    return G
+
+def calculate_eigenvector_centrality(G):
+    return nx.eigenvector_centrality(G, max_iter=500)
 
 '''
 params: a dict, mapping each country to a dict of its trade partners and amounts
@@ -323,5 +345,15 @@ if __name__ == '__main__':
         print("Side B Summary:")
         show_summary(trade_percentagesB, sideB, instigatorsB)
 
-        if trade_valuesA_unknown != None: draw_trade_war_graphs(instigatorsA, sideA, trade_valuesA_unknown, 'A') 
-        if trade_valuesB_unknown != None: draw_trade_war_graphs(instigatorsB, sideB, trade_valuesB_unknown, 'B') 
+        if trade_valuesA_unknown != None: 
+            G_A, color_map_A= create_trade_war_graphs(instigatorsA, sideA, trade_valuesA_unknown, 'A') 
+            render_graph(G_A, True, color_map_A, 'A')
+            print(calculate_eigenvector_centrality(G_A))
+            G_A = remove_noncombatants(G_A, instigatorsA, sideA)
+            render_graph(G_A, False, 'r', 'A')
+        if trade_valuesB_unknown != None: 
+            G_B, color_map_B = create_trade_war_graphs(instigatorsB, sideB, trade_valuesB_unknown, 'B') 
+            render_graph(G_B, True, color_map_B, 'B')
+            print(calculate_eigenvector_centrality(G_B))
+            G_B = remove_noncombatants(G_B, instigatorsB, sideB)
+            render_graph(G_B, False, 'r', 'B')
