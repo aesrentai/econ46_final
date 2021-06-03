@@ -245,15 +245,22 @@ shows a summary of the data for one side
 def show_summary(percentages, side, instigators):
     print("Instigators: " + str(instigators))
     print("Combatants: " + str(side))
-    if percentages is not None:
-        slope, intercept, exponent, log_intercept = regression_models(percentages, side, instigators) 
-        print("Linear Regression: y = {0}x + {1}".format(slope[0][0], intercept[0]))
-        if exponent != -1:
-            print("Logistic Regression: y = 1/(1+e^-({0} + {1}x))".format(log_intercept[0], exponent[0][0]))
-        else:
-            print("Logistic Regression model not available")
+
+    if side == instigators:
+        print("No models available: no one joined instigators") 
+        return
+
+    if percentages is None:
+        print("No models available: instigators had no trade")
+        return
+
+    slope, intercept, exponent, log_intercept = regression_models(percentages, side, instigators) 
+
+    print("Linear Regression: y = {0}x + {1}".format(slope[0][0], intercept[0]))
+    if exponent != -1:
+        print("Logistic Regression: y = 1/(1+e^-({0} + {1}x))".format(log_intercept[0], exponent[0][0]))
     else:
-        print("No Regression Model Available")
+        print("Logistic Regression model not available")
 
 if __name__ == '__main__':
     print("Importing Data.  This may take a while.")
