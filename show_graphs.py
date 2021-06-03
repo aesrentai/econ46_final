@@ -39,13 +39,16 @@ def parse_conflict_num(dispute_data, conflict_id):
     return instigatorsA, instigatorsB, listA, listB, start_year
 
 '''
-params: a list of countries, and the year of conflict
+params: 
+    the parsed trade data
+    a list of trade partners
+    year of conflict
 returns: a dict of tuples, (country, dict of trade-partner and trade amount) 
 
 parses trade values for a list of countries at a given year and returns
 the amount each country traded with each other
 '''
-def parse_trade_data(trade_data, country_list, year):
+def parse_trade_data(trade_data, country_list, year, ignore_unknown = True):
     # use trade values from year before conflict
     year = str(int(year) - 1)
 
@@ -61,7 +64,7 @@ def parse_trade_data(trade_data, country_list, year):
 
             #TODO: figure out why this is necessary
             #some weird nonsense where the -9 check works but some logic is wrong somewhere
-            if trade_value == -18.0:
+            if ignore_unknown and trade_value == -18.0:
                 continue
 
             #well, this is ugly, but it works
