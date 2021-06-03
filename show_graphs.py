@@ -188,16 +188,18 @@ def remove_noncombatants(G, combatants, countries):
             edges_to_remove.append(edge)
     for edge in edges_to_remove:
         G.remove_edge(edge[0], edge[1])
-    countries_to_remove = []
 
     try:
+        countries_to_remove = []
         for country, _ in countries.items():
             if not country in combatants:
                 countries_to_remove.append(country)
         for country in countries_to_remove:
             G.remove_node(country)
     except AttributeError:
-        pass
+        print("COUNTRIES SHOULD EQUAL COMBATANTS")
+        print(countries)
+        print(combatants)
 
     return G
 
@@ -349,11 +351,11 @@ if __name__ == '__main__':
             G_A, color_map_A= create_trade_war_graphs(instigatorsA, sideA, trade_valuesA_unknown, 'A') 
             render_graph(G_A, True, color_map_A, 'A')
             print(calculate_eigenvector_centrality(G_A))
-            G_A = remove_noncombatants(G_A, instigatorsA, sideA)
+            G_A = remove_noncombatants(G_A, instigatorsA, trade_valuesA_unknown)
             render_graph(G_A, False, 'r', 'A')
         if trade_valuesB_unknown != None: 
             G_B, color_map_B = create_trade_war_graphs(instigatorsB, sideB, trade_valuesB_unknown, 'B') 
             render_graph(G_B, True, color_map_B, 'B')
             print(calculate_eigenvector_centrality(G_B))
-            G_B = remove_noncombatants(G_B, instigatorsB, sideB)
+            G_B = remove_noncombatants(G_B, instigatorsB, trade_valuesB_unknown)
             render_graph(G_B, False, 'r', 'B')
