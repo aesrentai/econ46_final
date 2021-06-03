@@ -112,36 +112,73 @@ def get_conflict_trade_partners(trade_data, sideA, sideB, year, ignore_unknown =
     return trade_partnersA, trade_partnersB
 
 '''
-params: list of instigators, dict of dicts (country: trade partner)
+params:
+    a graph
+    a country to be added to said graph
+    a list of the countries in the graph
+    the trade partnerships
+
+returns: none
+'''
+def add_country_to_graph(G, country, included_countries, trade_partners):
+    G.add_node(country)
+    for trade_partner in included_countries:
+        if trade_partner in trade_partners:
+            G.add_edge(country, trade_partner)
+    included_countries.append(country)
+
+'''
+params: 
+    list of instigators
+    list of combatants
+    dict of dicts (country: trade partners: amounts)
+    which side of the conflict: A or B
 returns: none
 
 draws a graph of the given network weighted by magnitude of trade
 '''
 def draw_trade_war_graphs(instigators, combatants, countries, side):
     #TODO: weight the network, use sigmoid smoothing 
+
     G = nx.Graph()
-    pos = nx.spring_layout(G)
     included_countries = []
+    color_map = []
+    #trade_combat_edge_list = [] #to track trade only amongst combatants
     for country, trade_partners in countries.items():
-        G.add_node(country)
-        for trade_partner in included_countries:
-            if trade_partner in trade_partners:
-                G.add_edge(country, trade_partner)
-        included_countries.append(country)
+        add_country_to_graph(G, country, included_countries, trade_partners)
+        if country in instigators:
+            color_map.append('red')
+        else:
+            color_map.append('green')
+    for combatant in combatants:
+        if not combatant in countries:
+            #no trade with any instigator but still fought
+            add_country_to_graph(G, combatant, included_countries, dict())
+
+    pos = nx.circular_layout(G)
     
     ax = plt.gca()
     ax.set_title('Trade Graph for Side ' + side)
-    nx.draw_networkx(G, with_labels=True, ax=ax)
-    ax.axis('off')
+    nx.draw_networkx(G, pos, node_color=color_map, with_labels=True, ax=ax)
     plt.show()
 
-    G.clear()
-    G.add_nodes_from(combatants)
-    edges = itertools.combinations(combatants, 2)
-    G.add_edges_from(edges)
+    #remove all the noncombatants
+    edges_to_remove = []
+    for edge in G.edges():
+        if not edge[0] in combatants or not edge[1] in combatants:
+            edges_to_remove.append(edge)
+    for edge in edges_to_remove:
+        G.remove_edge(edge[0], edge[1])
+    countries_to_remove = []
+    for country, _ in countries.items():
+        if not country in combatants:
+            countries_to_remove.append(country)
+    for country in countries_to_remove:
+        G.remove_node(country)
 
-    ax.set_title('Combatant Graph for Side ' + side)
-    nx.draw_networkx(G, with_labels=True, ax=ax)
+    ax2 = plt.gca()
+    ax2.set_title('Combatant Graph for Side ' + side)
+    nx.draw_networkx(G, pos, node_color = 'r', ax=ax2, nodelist=combatants)
     plt.show()
 
 '''
