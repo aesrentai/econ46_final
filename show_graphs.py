@@ -295,11 +295,21 @@ if __name__ == '__main__':
                 start_year
         )
 
+        instigatorsA_trade_partners_unknown, instigatorsB_trade_partners_unknown = get_conflict_trade_partners(
+                trade_data,
+                instigatorsA,
+                instigatorsB,
+                start_year,
+                ignore_unknown = False
+        )
+
         print("Parsing trade data for side A")
         trade_valuesA = parse_trade_data(trade_data, instigatorsA_trade_partners, start_year) if len(instigatorsA_trade_partners) > 1 else None
+        trade_valuesA_unknown = parse_trade_data(trade_data, instigatorsA_trade_partners_unknown, start_year, ignore_unknown = False) if len(instigatorsA_trade_partners_unknown) > 1 else None
 
         print("Parsing trade data for side B")
         trade_valuesB = parse_trade_data(trade_data, instigatorsB_trade_partners, start_year) if len(instigatorsB_trade_partners) > 1 else None
+        trade_valuesB_unknown = parse_trade_data(trade_data, instigatorsB_trade_partners_unknown, start_year, ignore_unknown = False) if len(instigatorsB_trade_partners_unknown) > 1 else None
     
         print("Calculating trade percentages for side A")
         trade_percentagesA = calculate_trade_percentages(trade_valuesA) if trade_valuesA is not None else None
@@ -312,6 +322,5 @@ if __name__ == '__main__':
         print("Side B Summary:")
         show_summary(trade_percentagesB, sideB, instigatorsB)
 
-        #TODO: add utility to intersect two lists so both sides can be shown in the same graph
-        if trade_valuesA != None: draw_trade_war_graphs(instigatorsA, sideA, trade_valuesA, 'A') 
-        if trade_valuesB != None: draw_trade_war_graphs(instigatorsB, sideB, trade_valuesB, 'B') 
+        if trade_valuesA_unknown != None: draw_trade_war_graphs(instigatorsA, sideA, trade_valuesA_unknown, 'A') 
+        if trade_valuesB_unknown != None: draw_trade_war_graphs(instigatorsB, sideB, trade_valuesB_unknown, 'B') 
