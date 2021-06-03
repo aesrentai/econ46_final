@@ -189,6 +189,10 @@ def calculate_trade_percentages(trade_values):
     trade_percentages = dict()
     for country, partners in trade_values.items():
         trade_volume = sum(map(abs, partners.values()))
+        if trade_volume == 0:
+            #no trade, joined anyways
+            trade_percentages[country] = {} 
+            continue
         trade_percentages[country] = {k: v / trade_volume for k, v in partners.items()} 
     return trade_percentages
 
