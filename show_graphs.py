@@ -232,7 +232,7 @@ def regression_models(percentages, side, instigators):
     try:
         log_reg = linear_model.LogisticRegression().fit(X, y.ravel())
     except ValueError:
-        #Logistic Regression fails if all y values are 0
+        #Logistic Regression fails if all y values are 0, so return error 
         return lin_reg.coef_, lin_reg.intercept_, -1, -1
     return lin_reg.coef_, lin_reg.intercept_, log_reg.coef_, lin_reg.intercept_
 
